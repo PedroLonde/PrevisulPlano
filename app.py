@@ -15,7 +15,7 @@ def main():
         nov = nov.drop(['Data de Cadastro', 'Data de Adesão', 'Data de Ativação', 
                         'Tipo de Benefício', 'Sequencial de Benefício','Sequencial','Cartão de Desconto','Identidade','Unidade', 'Dia de Vencimento', 
                         'Situação', 'Consultor', 'Bairro', 'Cidade', 'UF', 'Telefone', 
-                        'Email', 'Dados Adicionais'], axis=1)
+                        'Email', 'Dados Adicionais'], axis=1, errors='ignore')
 
         nov = nov.dropna(subset=['CPF/CNPJ'])
         nov.reset_index(drop=True, inplace=True)
@@ -32,12 +32,13 @@ def main():
 
         dados_pendentes = pd.read_excel(uploaded_file_pend)
 
-        for index, row in nov.iterrows():
-            if pd.isnull(row['Sexo']):
-                beneficiario = row['Nome do Beneficiário']
-                sexo_correspondente = dados_pendentes.loc[dados_pendentes['Nome do Beneficiário'] == beneficiario, 'Sexo'].values
-                if len(sexo_correspondente) > 0:
-                    nov.at[index, 'Sexo'] = sexo_correspondente[0]
+        if 'Nome do Beneficiário' in dados_pendentes.columns and 'Sexo' in dados_pendentes.columns:
+            for index, row in nov.iterrows():
+                if pd.isnull(row['Sexo']):
+                    beneficiario = row['Nome do Beneficiário']
+                    sexo_correspondente = dados_pendentes.loc[dados_pendentes['Nome do Beneficiário'] == beneficiario, 'Sexo'].values
+                    if len(sexo_correspondente) > 0:
+                        nov.at[index, 'Sexo'] = sexo_correspondente[0]
 
         nov['Titular'] = None
 
@@ -91,7 +92,7 @@ def main():
         nov.loc[condicao_vital, 'Plano'] = 'Vital'
         nov.loc[~(condicao_pleno | condicao_plus | condicao_vital), 'Plano'] = 'Essencial'
 
-        nov = nov.drop(['Tipo de Beneficiário','Parentesco','Idade','Titular'], axis=1)
+        nov = nov.drop(['Tipo de Beneficiário','Parentesco','Idade','Titular'], axis=1, errors='ignore')
         nov['Data de Nascimento'] = pd.to_datetime(nov['Data de Nascimento']).dt.strftime('%d/%m/%Y')
 
         nov.to_excel("RelatorioGeral.xlsx", index=False)
@@ -153,11 +154,4 @@ def main():
         df = pd.DataFrame(dados)
 
         st.write("Processamento concluído. Os arquivos foram salvos.")
-        st.download_button("Download RelatorioGeral.xlsx", data=open("RelatorioGeral.xlsx", "rb").read(), file_name="RelatorioGeral.xlsx")
-        st.download_button("Download 12009820007990.xlsx", data=open("12009820007990.xlsx", "rb").read(), file_name="12009820007990.xlsx")
-        st.download_button("Download 12009820007976.xlsx", data=open("12009820007976.xlsx", "rb").read(), file_name="12009820007976.xlsx")
-        st.download_button("Download 12009820007972.xlsx", data=open("12009820007972.xlsx", "rb").read(), file_name="12009820007972.xlsx")
-        st.download_button("Download 12009820007974.xlsx", data=open("12009820007974.xlsx", "rb").read(), file_name="12009820007974.xlsx")
-
-if __name__ == "__main__":
-    main()
+        st.download_button("Download RelatorioGeral.xlsx", data=open("RelatorioGeral.xlsx", "rb").read(), file_name="RelatorioG
