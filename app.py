@@ -1,16 +1,21 @@
 import streamlit as st
 import pandas as pd
+import os
 
 def main():
     st.title("Processamento de Relatórios Excel")
     
     uploaded_file_nov = st.file_uploader("Escolha o arquivo Relatório Novo", type=["xlsx"], key="nov")
-    uploaded_file_ant = st.file_uploader("Escolha o arquivo Relatório Antigo", type=["xlsx"], key="ant")
     uploaded_file_pend = st.file_uploader("Escolha o arquivo Pendentes Alteração", type=["xlsx"], key="pend")
 
-    if uploaded_file_nov and uploaded_file_ant and uploaded_file_pend:
+    if os.path.exists("RelatorioGeral.xlsx"):
+        ant = pd.read_excel("RelatorioGeral.xlsx")
+    else:
+        st.error("O arquivo RelatorioGeral.xlsx não foi encontrado. Certifique-se de que ele exista na pasta.")
+        return
+
+    if uploaded_file_nov and uploaded_file_pend:
         nov = pd.read_excel(uploaded_file_nov, header=1)
-        ant = pd.read_excel(uploaded_file_ant)
         dados_pendentes = pd.read_excel(uploaded_file_pend)
 
         nov = nov.drop(['Data de Cadastro', 'Data de Adesão', 'Data de Ativação', 
@@ -104,25 +109,14 @@ def main():
         }
         novos_df = pd.DataFrame(novos_dados)
         Pleno = pd.concat([Pleno, novos_df], ignore_index=True)
+        
+        # Salvar os DataFrames atualizados
+        nov.to_excel("RelatorioGeral.xlsx", index=False)
+        Pleno.to_excel("Pleno.xlsx", index=False)
 
-        Plus = nov[nov['Plano'].str.contains('Plus')].drop('Plano', axis=1)
-        Vital = nov[nov['Plano'].str.contains('Vital')].drop('Plano', axis=1)
-        Essencial = nov[nov['Plano'].str.contains('Essencial')].drop('Plano', axis=1)
-
-        st.write("Pleno")
-        st.write(Pleno)
-        st.write("Plus")
-        st.write(Plus)
-        st.write("Vital")
-        st.write(Vital)
-        st.write("Essencial")
-        st.write(Essencial)
-
-        st.download_button(label="Download Pleno", data=Pleno.to_csv(index=False), file_name="Pleno.csv", mime="text/csv")
-        st.download_button(label="Download Plus", data=Plus.to_csv(index=False), file_name="Plus.csv", mime="text/csv")
-        st.download_button(label="Download Vital", data=Vital.to_csv(index=False), file_name="Vital.csv", mime="text/csv")
-        st.download_button(label="Download Essencial", data=Essencial.to_csv(index=False), file_name="Essencial.csv", mime="text/csv")
+        st.success("Processamento concluído. Arquivos salvos.")
+        st.download_button("Download RelatorioGeral.xlsx", data=open("RelatorioGeral.xlsx", "rb").read(), file_name="RelatorioGeral.xlsx")
+        st.download_button("Download Pleno.xlsx", data=open("Pleno.xlsx", "rb").read(), file_name="Pleno.xlsx")
 
 if __name__ == "__main__":
     main()
-
