@@ -154,4 +154,11 @@ def main():
         df = pd.DataFrame(dados)
 
         st.write("Processamento concluído. Os arquivos foram salvos.")
-        st.download_button("Download RelatorioGeral.xlsx", data=open("RelatorioGeral.xlsx", "rb").read(), file_name="RelatorioG
+        st.download_button("Download RelatorioGeral.xlsx", data=open("RelatorioGeral.xlsx", "rb").read(), file_name="RelatorioGeral.xlsx")
+        st.download_button("Download 12009820007990.xlsx", data=open("12009820007990.xlsx", "rb").read(), file_name="12009820007990.xlsx")
+        st.download_button("Download 12009820007976.xlsx", data=open("12009820007976.xlsx", "rb").read(), file_name="12009820007976.xlsx")
+        st.download_button("Download 12009820007972.xlsx", data=open("12009820007972.xlsx", "rb").read(), file_name="12009820007972.xlsx")
+        st.download_button("Download 12009820007974.xlsx", data=open("12009820007974.xlsx", "rb").read(), file_name="12009820007974.xlsx")
+
+if __name__ == "__main__":
+    main()
